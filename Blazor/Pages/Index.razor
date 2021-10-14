@@ -1,0 +1,352 @@
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using System.Globalization;
+@using System.Text.RegularExpressions;
+
+
+<div class="form-row">
+    <div class="col-9">
+        <button class="collapsible-content"><img id="section1Img" src="./img/check_invalid.png" />   <span>Section 1</span></button>
+        <div class="content-div">
+
+            <EditForm EditContext="@editContext1" @onreset="HandleResetSection1">
+
+                <DataAnnotationsValidator />
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <label>Name</label>
+                        <InputText @bind-Value="Section1.Name" @oninput="@OnValueChanged" disabled="@IsDisabledSection1" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section1.Name)" />
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Email</label>
+                        <InputText @bind-Value="Section1.Email" @oninput="@OnValueChanged" disabled="@IsDisabledSection1" class="form-control input-outline" />
+                        <ValidationMessage For="@(() => Section1.Email)" />
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Phone</label>
+                        <InputText @bind-Value="Section1.Phone" @oninput="@OnValueChanged" disabled="@IsDisabledSection1" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section1.Phone)" />
+                    </div>
+                </div>
+
+            </EditForm>
+        </div>
+
+        <button class="collapsible-content"><img id="section2Img" src="./img/check_invalid.png" />   <span>Section 2</span></button>
+        <div class="content-div">
+
+            <EditForm EditContext="@editContext2" @onreset="HandleResetSection2">
+                <DataAnnotationsValidator />
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <label>Address Line1</label>
+                        <InputText @bind-Value="Section2.AddressLine1" @oninput="@OnValueChanged" disabled="@IsDisabledSection2" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section2.AddressLine1)" />
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Address Line2</label>
+                        <InputText @bind-Value="Section2.AddressLine2" @oninput="@OnValueChanged" disabled="@IsDisabledSection2" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section2.AddressLine2)" />
+                    </div>
+                    <div class="form-group col-4">
+                        <label>County</label>
+                        <InputText @bind-Value="Section2.County" @oninput="@OnValueChanged" disabled="@IsDisabledSection2" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section2.County)" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <label>Country</label>
+                        <InputText @bind-Value="Section2.Country" @oninput="@OnValueChanged" disabled="@IsDisabledSection2" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section2.Country)" />
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Post Code</label>
+                        <InputText @bind-Value="Section2.Postcode" @oninput="@OnValueChanged" disabled="@IsDisabledSection2" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section2.Postcode)" />
+                    </div>
+                </div>
+            </EditForm>
+
+        </div>
+
+        <button class="collapsible-content"><img id="section3Img" src="./img/check_invalid.png" />   <span>Section 3</span></button>
+        <div class="content-div">
+            <EditForm EditContext="@editContext3" @onreset="HandleResetSection3">
+                <DataAnnotationsValidator />
+                <div class="form-row">
+                    <div class="form-group col-4">
+                        <label>Start Date</label>
+                        <InputDate @bind-Value="Section3.StartDate" @oninput="@OnValueChanged" disabled="@IsDisabledSection3" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section3.StartDate)" />
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Example Number Range</label>
+                        <InputNumber @bind-Value="Section3.ExampleNumberRange" @oninput="@OnValueChanged" disabled="@IsDisabledSection3" class="form-control no-outline input-outline" />
+                        <ValidationMessage For="@(() => Section3.ExampleNumberRange)" />
+                    </div>
+                </div>
+                <div class="text-center float-right col-3">
+                    <button type="submit" class="btn btn-secondary">Submit</button>
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+    <div class="col-3 step-state text-center">
+        <div style="margin-bottom: 30px">Step progress</div>
+        <div class="section"><img id="section1Status" src="./img/check_invalid.png" />  <span>Section 1</span></div>
+        <!--<div class="vertical-line"></div>-->
+        <div class="section"><img id="section2Status" src="./img/check_invalid.png" />  <span>Section 2</span></div>
+        <!-- <div class="vertical-line"></div>-->
+        <div class="section3"><img id="section3Status" src="./img/check_invalid.png" />  <span>Section 3</span></div>
+    </div>
+</div>
+
+
+
+@code {
+    private Section1Model Section1;
+    private Section2Model Section2;
+    private Section3Model Section3;
+
+    private EditContext editContext1, editContext2, editContext3;
+
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; }
+    private IJSObjectReference _jsModule;
+
+    protected bool IsDisabledSection1 { get; set; }
+    protected bool IsDisabledSection2 { get; set; }
+    protected bool IsDisabledSection3 { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Section1 = new Section1Model();
+        Section2 = new Section2Model();
+        Section3 = new Section3Model();
+
+        editContext1 = new EditContext(Section1);
+        editContext2 = new EditContext(Section2);
+        editContext3 = new EditContext(Section3);
+
+        IsDisabledSection2 = true;
+        IsDisabledSection3 = true;
+
+
+        Section1.Name = "test";
+        Section1.Email = "test@gmail.com";
+        Section1.Phone = "111111";
+
+        Section2.AddressLine1 = "test";
+        Section2.AddressLine2 = "test";
+        Section2.Country = "test";
+        Section2.County = "test";
+        Section2.Postcode = "1111111";
+
+        Section3.StartDate = new DateTime(1998, 04, 30);
+        Section3.ExampleNumberRange = 3;
+
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        OnValueChanged();        
+    }
+
+        private void HandleResetSection1()
+    {
+        Section1 = new Section1Model();
+        editContext1 = new EditContext(Section1);
+    }
+
+    private void HandleResetSection2()
+    {
+        Section2 = new Section2Model();
+        editContext2 = new EditContext(Section2);
+    }
+
+    private void HandleResetSection3()
+    {
+        Section3 = new Section3Model();
+        editContext3 = new EditContext(Section3);
+    }
+
+
+    private async void OnValueChanged()
+    {
+
+        int nameStrLength = 0, addres1Len = 0, countyLen = 0, countryLen = 0, postCodeLen = 0, exampleNumVal = 0 ;
+        string emailStrVal = "";
+
+        if(Section1.Name != null)
+            nameStrLength = Section1.Name.Length;
+
+        if(Section2.AddressLine1 != null)
+            addres1Len = Section2.AddressLine1.Length;
+
+        if(Section2.County != null)
+            countyLen = Section2.County.Length;
+
+        if(Section2.Country != null)
+            countryLen = Section2.Country.Length;
+
+        if(Section2.Postcode != null)
+            postCodeLen = Section2.Postcode.Length;
+
+        exampleNumVal = Section3.ExampleNumberRange;
+
+        if(Section1.Email != null)
+        {
+            emailStrVal = Section1.Email;
+        }
+
+
+        bool testres = IsValidEmail(emailStrVal);
+
+        if(nameStrLength > 0 && nameStrLength < 50 && IsValidEmail(emailStrVal) == true )
+        {
+            IsDisabledSection2 = false;
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section1ImgChangeValid");
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section1StatusValid");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section1ImgChangeInvalid");
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section1StatusInValid");
+        }
+
+        if(addres1Len > 0 && addres1Len < 50 && countyLen > 0 && countyLen < 50 &&
+            countryLen > 0 && countryLen < 50 && postCodeLen > 0 && postCodeLen < 50)
+        {
+            IsDisabledSection3 = false;
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section2ImgChangeValid");
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section2StatusValid");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section2ImgChangeInvalid");
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section2StatusInValid");
+        }
+
+        if( exampleNumVal > 0 && exampleNumVal <= 10)
+        {
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section3ImgChangeValid");
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section3StatusValid");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section3ImgChangeInvalid");
+            await JSRuntime.InvokeVoidAsync("changeImgUrlFunctions.section3StatusInValid");
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./script/collapse.js");
+    }
+
+
+
+    /// <summary>
+    /// email validation function
+    /// </summary>
+    public static bool IsValidEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
+
+        try
+        {
+            // Normalize the domain
+            email = Regex.Replace(email, @"(@)(.+)$", DomainMapper,
+                                  RegexOptions.None, TimeSpan.FromMilliseconds(200));
+
+            // Examines the domain part of the email and normalizes it.
+            string DomainMapper(Match match)
+            {
+                // Use IdnMapping class to convert Unicode domain names.
+                var idn = new IdnMapping();
+
+                // Pull out and process domain name (throws ArgumentException on invalid)
+                string domainName = idn.GetAscii(match.Groups[2].Value);
+
+                return match.Groups[1].Value + domainName;
+            }
+        }
+        catch (RegexMatchTimeoutException e)
+        {
+            return false;
+        }
+        catch (ArgumentException e)
+        {
+            return false;
+        }
+
+        try
+        {
+            return Regex.IsMatch(email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+                RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            return false;
+        }
+    }
+
+
+
+
+    /// <summary>
+    /// /Model class summary
+    /// </summary>
+
+    public class Section1Model
+    {
+        [Required]
+        [StringLength(50, ErrorMessage = "Identifier too long (50 character limit).")]
+        public string Name { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        public string Phone { get; set; }
+    }
+
+    public class Section2Model
+    {
+        [Required]
+        [StringLength(50, ErrorMessage = "Identifier too long (50 character limit).")]
+        public string AddressLine1 { get; set; }
+
+        public string AddressLine2 { get; set; }
+
+        [Required]
+        [StringLength(50, ErrorMessage = "Identifier too long (50 character limit).")]
+        public string County { get; set; }
+
+        [Required]
+        [StringLength(50, ErrorMessage = "Identifier too long (50 character limit).")]
+        public string Country { get; set; }
+
+        [Required]
+        [StringLength(10, ErrorMessage = "Identifier too long (10 character limit).")]
+        public string Postcode { get; set; }
+    }
+
+    public class Section3Model
+    {
+        [Required]
+        public DateTime StartDate { get; set; }
+
+        [Required]
+        [Range(1, 10)]
+        public int ExampleNumberRange { get; set; }
+    }
+}
